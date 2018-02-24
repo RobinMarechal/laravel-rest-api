@@ -1,6 +1,7 @@
 {
   "name": "robinmarechal/laravel-rest-api",
   "type": "library",
+  "version": "dev-master",
   "authors": [
     {
       "name": "RobinMarechal",
