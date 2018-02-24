@@ -14,7 +14,7 @@ use Symfony\Component\Debug\Exception\UndefinedFunctionException;
 use Symfony\Component\HttpFoundation\Response;
 use function str_singular;
 
-trait RestRequestHandler
+trait HandleRestRequest
 {
     protected $traitRequest;
     protected $postValues;
@@ -178,7 +178,7 @@ trait RestRequestHandler
     public function __call($method, $parameters)
     {
         if (strpos($method, "get_") == 0 && strlen($method) > 3 && is_array($parameters) && isset($parameters[0])) {
-            $modelNamespace = configs('rest.model_namespace');
+            $modelNamespace = config('rest.model_namespace');
 
             // Find the relation name (with first letter uppercase)
             $relation = substr($method, 3);
