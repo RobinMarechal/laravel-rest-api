@@ -166,7 +166,9 @@ class {{model_name}} extends Model
             "<?php
 namespace {{controller_namespace}};
 
-class {{controller_name}} extends ApiController
+use App\Http\Controllers\Controller;
+
+class {{controller_name}} extends Controller
 {
 
 }";
