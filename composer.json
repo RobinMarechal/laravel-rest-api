@@ -1,7 +1,8 @@
 {
   "name": "robinmarechal/laravel-rest-api",
   "type": "library",
-  "version": "dev-master",
+  "keywords": ["rest", "api", "laravel"],
+  "description": "An easy way to add a REST API to your project",
   "authors": [
     {
       "name": "RobinMarechal",
@@ -14,6 +15,13 @@
   "autoload": {
     "psr-4": {
       "RobinMarechal\\RestApi\\": "src"
+    }
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "RobinMarechal\\RestApi\\RestApiServiceProvider"
+      ]
     }
   }
 }
