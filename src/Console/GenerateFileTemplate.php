@@ -137,7 +137,9 @@ trait GenerateFileTemplates
             $compiledRelationFunction = $this->compileModelRelationTemplate($funcName, $relatedModel, $method);
             $template = str_replace('{{model_relation}}', $compiledRelationFunction . "\n\n{{model_relation}}", $template);
         }
+
         $template = str_replace("\n\n{{model_relation}}", '', $template);
+        $template = str_replace("{{model_relation}}", '', $template);
 
         return $template;
     }
