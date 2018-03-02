@@ -129,16 +129,33 @@ class QueryBuilder
         $orderKeyword = config('rest.request_keywords.order');
 
         if ($this->request->filled($orderByKeyword)) {
-            $orderBy = $this->request->get($orderByKeyword);
-            $order = $this->request->get($orderKeyword) ?: 'ASC';
+            $orderByArray = $this->request->get($orderByKeyword);
+            $orderArray = $this->request->get($orderKeyword);
 
-            if (str_contains($orderBy, ',')) {
-                $arr = explode(',', $orderBy);
-                $orderBy = $arr[0];
-                $order = $arr[1];
+            if(!is_array($orderByArray)){
+                $orderByArray = [$orderByArray];
             }
 
-            $this->query->orderBy($orderBy, $order);
+            if (!$orderArray) {
+                $orderArray = [];
+            }
+            else if (!is_array($orderArray)) {
+                $orderArray = [$orderArray];
+            }
+
+            for ($i = 0; $i < count($orderByArray); $i++) {
+
+                $orderBy = $orderByArray[$i];
+                $order = isset($orderArray[$i]) ? $orderArray[$i] : 'ASC';
+
+                if (str_contains($orderBy, ',')) {
+                    $arr = explode(',', $orderBy);
+                    $orderBy = $arr[0];
+                    $order = $arr[1];
+                }
+
+                $this->query->orderBy($orderBy, $order);
+            }
         }
     }
 
@@ -247,6 +264,11 @@ class QueryBuilder
 
         if ($this->request->filled($whereKeyword)) {
             $wheres = $this->request->get($whereKeyword);
+
+            if(!is_array($wheres)){
+                $wheres = [$wheres];
+            }
+
             foreach ($wheres as $where) {
                 $params = explode(',', $where);
                 if (isset($params[2])) {
