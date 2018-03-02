@@ -139,15 +139,6 @@ return [
         'order_by' => 'orderby',
 
         /**
-         * Keyword used to specify the ordering direction when orderby is used (ascending or descending)
-         * Ex: (GET)  .../api/users?orderby=name&order=DESC
-         *      => will retrieve users ordered by their name, descending order
-         *
-         * Default: order
-         */
-        'order' => 'order',
-
-        /**
          * Keyword used to retrieve data that have been created (by default) after a specific date (included)
          * Ex: (GET) .../api/posts?from=2018-01-01
          *      => will retrieve all the posts created on the 2018-01-01 or after

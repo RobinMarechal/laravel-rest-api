@@ -126,27 +126,23 @@ class QueryBuilder
     public function applyOrderingParameters()
     {
         $orderByKeyword = config('rest.request_keywords.order_by');
-        $orderKeyword = config('rest.request_keywords.order');
 
         if ($this->request->filled($orderByKeyword)) {
             $orderByArray = $this->request->get($orderByKeyword);
-            $orderArray = $this->request->get($orderKeyword);
 
-            if(!is_array($orderByArray)){
-                $orderByArray = [$orderByArray];
+            if (!$orderByArray) {
+                return;
             }
 
-            if (!$orderArray) {
-                $orderArray = [];
-            }
-            else if (!is_array($orderArray)) {
-                $orderArray = [$orderArray];
-            }
+            $orderByArray = explode(',', $orderByArray);
 
-            for ($i = 0; $i < count($orderByArray); $i++) {
+            foreach ($orderByArray as $orderBy) {
+                $order = 'asc';
 
-                $orderBy = $orderByArray[$i];
-                $order = isset($orderArray[$i]) ? $orderArray[$i] : 'ASC';
+                if($orderBy[0] == '-'){
+                    $order = 'desc';
+                    $orderBy = substr($orderBy, 1);
+                }
 
                 if (str_contains($orderBy, ',')) {
                     $arr = explode(',', $orderBy);
@@ -265,7 +261,7 @@ class QueryBuilder
         if ($this->request->filled($whereKeyword)) {
             $wheres = $this->request->get($whereKeyword);
 
-            if(!is_array($wheres)){
+            if (!is_array($wheres)) {
                 $wheres = [$wheres];
             }
 
