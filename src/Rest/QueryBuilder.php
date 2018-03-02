@@ -246,7 +246,7 @@ class QueryBuilder
         $whereKeyword = config('rest.request_keywords.where');
 
         if ($this->request->filled($whereKeyword)) {
-            $wheres = explode(';', $this->request->get($whereKeyword));
+            $wheres = $this->request->get($whereKeyword);
             foreach ($wheres as $where) {
                 $params = explode(',', $where);
                 if (isset($params[2])) {

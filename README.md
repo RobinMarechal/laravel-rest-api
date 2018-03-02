@@ -88,13 +88,13 @@ I've created an _Artisan_'s command that helps us to create these controllers an
 To create the controller and the model for a database table, simply execute the following command:
 ```bash
 php artisan api:table <table_name|model_name> 
-						   [--F|fillables=]
-		                   [--H|hidden=]
-		                   [--D|dates=]
-		                   [--T|timestamps=] 
-		                   [--softDeletes] 
-		                   [--R|relations=]
-		                   [--M|migrations]
+                            [--F|fillables=]
+                            [--H|hidden=]
+                            [--D|dates=]
+                            [--T|timestamps=] 
+                            [--softDeletes] 
+                            [--R|relations=]
+                            [--M|migrations]
 ``` 
 
 - `--fillables=` (or `-F`) option takes a list of fields, seperated by a comma (`,`), that represents the `fillables`' field value of your model.
