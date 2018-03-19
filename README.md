@@ -69,7 +69,7 @@ class Controller extends BaseController
 }
 ```
 
-##  Prepare your API
+##  Prepare your(self) API
 Once you've installed the package, you just need to create the required structure.
 For each of your database's tables (except the pivots), you need to create a **Controller** and a **Model**.
 
