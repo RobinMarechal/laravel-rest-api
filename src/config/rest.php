@@ -11,6 +11,28 @@ return [
     'route_prefix' => 'api',
 
     /**
+     * Enable cross origin request.
+     * If you're using this API as a distant API, you may enable this.
+     * This will set the headers:
+     *  - 'Access-Conrol-Allow-Origin' to <allow-origins>'s value
+     *  - 'Access-Control-Allow-Methods' to the specified HTTP methods
+     *
+     * Default: false
+     */
+    'allow_cors' => false,
+
+    /**
+     * Enable request from specific origins
+     * - '*': all origins
+     * - '<ip|url>': allow one domain
+     *
+     * Ex: 'myapplication.com'
+     *
+     * Default: '*'
+     */
+    'allow_origins' => '*',
+
+    /**
      * The namespace of your application's controllers
      *
      * Warning: your namespace MUST terminate with '\\';

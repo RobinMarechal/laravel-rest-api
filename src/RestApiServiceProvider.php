@@ -2,6 +2,7 @@
 
 namespace RobinMarechal\RestApi;
 
+use App\Http\Middleware\Cors;
 use Illuminate\Support\ServiceProvider;
 use RobinMarechal\RestApi\Commands\ApiTablesCommand;
 use RobinMarechal\RestApi\Controllers\ApiController;
@@ -17,6 +18,7 @@ class RestApiServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->mergeConfigFrom(__DIR__ . '/config/rest.php', 'rest');
+        
         $this->publishes([
             __DIR__.'/config/rest.php' => config_path('rest.php'),
         ]);
