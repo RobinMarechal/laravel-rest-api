@@ -8,7 +8,9 @@
 
 namespace RobinMarechal\RestApi\Rest;
 
+use App\User;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Request;
 use function explode;
@@ -28,10 +30,13 @@ class QueryBuilder
 
     public $cfg;
 
+    /**
+     * @var \Illuminate\Database\Eloquent\Builder
+     */
     private $query;
 
 
-    function __construct(&$query, $class)
+    function __construct(Builder &$query, $class)
     {
         $this->query = $query;
         $this->class = $class;
@@ -39,7 +44,7 @@ class QueryBuilder
     }
 
 
-    public static function getPreparedQuery($class)
+    public static function getPreparedQuery($class): Builder
     {
         $query = $class::query();
 
@@ -47,7 +52,7 @@ class QueryBuilder
     }
 
 
-    public static function buildQuery(&$query, $class)
+    public static function buildQuery(&$query, $class): Builder
     {
         $instance = new QueryBuilder($query, $class);
         $instance->build();
@@ -198,7 +203,7 @@ class QueryBuilder
     }
 
 
-    protected function getRawArrayFromString($str)
+    protected function getRawArrayFromString($str): array 
     {
         $withKeyword = config('rest.request_keywords.with');
 
@@ -290,7 +295,7 @@ class QueryBuilder
     }
 
 
-    protected function getBuiltQuery()
+    protected function getBuiltQuery(): Builder
     {
         return $this->query;
     }

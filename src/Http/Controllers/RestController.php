@@ -4,6 +4,7 @@ namespace RobinMarechal\RestApi\Controllers;
 
 use App\Http\Controllers\Controller;
 use ErrorException;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use RobinMarechal\RestApi\Rest\HandleRestRequest;
@@ -20,30 +21,32 @@ class RestController extends Controller
 
     function __construct(Request $request)
     {
-//        $request->header('Access-Control-Allow-Origin', '*')->header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-
         $this->request = $request;
     }
 
 
-    function dispatch($resource, $id = null, $relation = null, $relationId = null)
+    function dispatch($resource, $id = null, $relation = null, $relationId = null): JsonResponse
     {
         $response = null;
 
         switch ($this->request->getMethod()) {
             case 'GET':
                 $response = $this->handleGet($resource, $id, $relation, $relationId);
+                break;
             case 'POST':
                 $response = $this->handlePost($resource);
+                break;
             case 'PUT':
                 $response = $this->handlePut($resource, $id);
+                break;
             case 'DELETE':
                 $response = $this->handleDelete($resource, $id);
+                break;
         }
 
-        if(config('rest.allow_cors')){
+        if (config('rest.allow_cors')) {
             $response->header('Access-Control-Allow-Origin', config('rest.allow_origins'));
-            
+
             $methodsArray = config('rest.http_methods');
             $methodsString = join(', ', array_values($methodsArray));
 
@@ -54,7 +57,7 @@ class RestController extends Controller
     }
 
 
-    public function handleGet($resource, $id = null, $relation = null, $relationId = null): Response
+    public function handleGet($resource, $id = null, $relation = null, $relationId = null): JsonResponse
     {
         $controller = $this->prepareController($resource);
 
@@ -72,7 +75,7 @@ class RestController extends Controller
     }
 
 
-    public function handlePost($resource): Response
+    public function handlePost($resource): JsonResponse
     {
         $controller = $this->prepareController($resource);
 
@@ -80,7 +83,7 @@ class RestController extends Controller
     }
 
 
-    public function handlePut($resource, $id): Response
+    public function handlePut($resource, $id): JsonResponse
     {
         $controller = $this->prepareController($resource);
 
@@ -88,7 +91,7 @@ class RestController extends Controller
     }
 
 
-    public function handleDelete($resource, $id): Response
+    public function handleDelete($resource, $id): JsonResponse
     {
         $controller = $this->prepareController($resource);
 
@@ -96,7 +99,7 @@ class RestController extends Controller
     }
 
 
-    protected function prepareController($resource): HandleRestRequest
+    protected function prepareController($resource): Controller
     {
         $cfg = config('rest');
 

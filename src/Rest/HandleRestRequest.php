@@ -9,6 +9,7 @@
 namespace RobinMarechal\RestApi\Rest;
 
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 use RobinMarechal\RestApi\Http\Helper;
 use Symfony\Component\Debug\Exception\UndefinedFunctionException;
 use Symfony\Component\HttpFoundation\Response;
@@ -20,13 +21,13 @@ trait HandleRestRequest
     protected $postValues;
 
 
-    public function getTraitRequest()
+    public function getTraitRequest(): Request
     {
         return $this->traitRequest;
     }
 
 
-    public function setTraitRequest($request)
+    public function setTraitRequest(Request $request)
     {
         $this->traitRequest = $request;
         $this->postValues = $request->json()->all();
@@ -38,7 +39,7 @@ trait HandleRestRequest
      * ------------------------------------------------------------------
      */
 
-    public function getById($id)
+    public function getById($id): Response
     {
         $class = Helper::getRelatedModelClassName($this);
         $resp = $this->defaultGetById($class, $id);
@@ -47,7 +48,7 @@ trait HandleRestRequest
     }
 
 
-    public function defaultGetById($class, $id)
+    public function defaultGetById($class, $id): ResponseData
     {
         $data = QueryBuilder::getPreparedQuery($class)
                             ->find($id);
@@ -56,7 +57,7 @@ trait HandleRestRequest
     }
 
 
-    public function getFromTo($from, $to)
+    public function getFromTo($from, $to): Response
     {
         $class = Helper::getRelatedModelClassName($this);
         $resp = $this->defaultGetFromTo($class, $from, $to);
@@ -65,7 +66,7 @@ trait HandleRestRequest
     }
 
 
-    public function defaultGetFromTo($class, $from, $to, $field = null)
+    public function defaultGetFromTo($class, $from, $to, $field = null): ResponseData
     {
         if(!$field){
             $field = config('rest.default_temporal_field');
@@ -81,7 +82,7 @@ trait HandleRestRequest
     }
 
 
-    public function put($id)
+    public function put($id): Response
     {
         $class = Helper::getRelatedModelClassName($this);
         $resp = $this->defaultPut($class, $id);
@@ -90,7 +91,7 @@ trait HandleRestRequest
     }
 
 
-    public function defaultPut($class, $id)
+    public function defaultPut($class, $id): ResponseData
     {
         $data = $this->defaultGetById($class, $id)
                      ->getData();
@@ -106,14 +107,14 @@ trait HandleRestRequest
     }
 
 
-    protected function userWantsAll()
+    protected function userWantsAll(): bool
     {
         $allKeyword = config('rest.request_keywords.get_all');
         return $this->traitRequest->filled($allKeyword) && $this->traitRequest->get($allKeyword) == true;
     }
 
 
-    public function all()
+    public function all(): Response
     {
         $class = Helper::getRelatedModelClassName($this);
         $resp = $this->defaultAll($class);
@@ -122,7 +123,7 @@ trait HandleRestRequest
     }
 
 
-    public function defaultAll($class)
+    public function defaultAll($class): ResponseData
     {
         $data = QueryBuilder::getPreparedQuery($class)
                             ->get();
@@ -131,7 +132,7 @@ trait HandleRestRequest
     }
 
 
-    public function delete($id)
+    public function delete($id): Response
     {
         $class = Helper::getRelatedModelClassName($this);
         $resp = $this->defaultDelete($class, $id);
@@ -140,7 +141,7 @@ trait HandleRestRequest
     }
 
 
-    public function defaultDelete($class, $id)
+    public function defaultDelete($class, $id): ResponseData
     {
         $data = $class::find($id);
         if ($data == null) {
@@ -155,7 +156,7 @@ trait HandleRestRequest
     }
 
 
-    public function post()
+    public function post(): Response
     {
         $class = Helper::getRelatedModelClassName($this);
         $resp = $this->defaultPost($class);
@@ -164,7 +165,7 @@ trait HandleRestRequest
     }
 
 
-    public function defaultPost($class)
+    public function defaultPost($class): ResponseData
     {
         $data = $class::create($this->postValues);
         if ($this->userWantsAll()) {
@@ -175,7 +176,7 @@ trait HandleRestRequest
     }
 
 
-    public function __call($method, $parameters)
+    public function __call($method, $parameters): Response
     {
         if (strpos($method, "get_") == 0 && strlen($method) > 3 && is_array($parameters) && isset($parameters[0])) {
             $modelNamespace = config('rest.model_namespace');
@@ -212,7 +213,7 @@ trait HandleRestRequest
     }
 
 
-    public function defaultGetRelationResultOfId($class, $id, $relationClass, $relationName, $relationId = null)
+    public function defaultGetRelationResultOfId($class, $id, $relationClass, $relationName, $relationId = null): ResponseData
     {
         // No relation, redirect the request
         if ($relationId == null) {
@@ -257,7 +258,7 @@ trait HandleRestRequest
      *          otherwise this will fail
      * @return ResponseData the couple (json, Http code)
      */
-    public function defaultGetRelationResult($class, $id, $relationName)
+    public function defaultGetRelationResult($class, $id, $relationName): ResponseData
     {
         // Find the data with it's relation
         $data = $class::with([$relationName => function ($query) use ($class) {

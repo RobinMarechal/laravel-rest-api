@@ -6,13 +6,13 @@ use Illuminate\Http\Request;
 
 class Helper
 {
-    public static function userWantsAll(Request $request)
+    public static function userWantsAll(Request $request): bool
     {
         $allStr = config('rest.request_rewords.get_all');
         return $request->has($allStr) && $request->get($allStr) == "true";
     }
 
-    public static function getRelatedModelClassName(Controller $controller)
+    public static function getRelatedModelClassName(Controller $controller): string
     {
         $fullName = get_class($controller);
         $reducedName = str_replace('Controller', '', array_last(explode('\\', $fullName)));

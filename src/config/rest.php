@@ -19,7 +19,7 @@ return [
      *
      * Default: false
      */
-    'allow_cors' => false,
+    'allow_cors' => true,
 
     /**
      * Enable request from specific origins
