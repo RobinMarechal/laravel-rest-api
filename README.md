@@ -69,6 +69,31 @@ class Controller extends BaseController
 }
 ```
 
+
+If you want to create custom routes with custom handlings, you may want to access the request in your child controllers. Therefore, you should add a constructor to the `Controller` parent class like this:
+
+```php
+<?php
+
+namespace App\Http\Controllers;
+
+// ...
+use RobinMarechal\RestApi\Rest\HandleRestRequest;
+
+class Controller extends BaseController
+{
+	// ...
+    use HandleRestRequest;
+    
+    protected $request;
+
+    function __construct(\Illuminate\Http\Request $request)
+    {
+        $this->request = $request;
+    }
+}
+```
+
 ##  Prepare your(self) API
 Once you've installed the package, you just need to create the required structure.
 For each of your database's tables (except the pivots), you need to create a **Controller** and a **Model**.
