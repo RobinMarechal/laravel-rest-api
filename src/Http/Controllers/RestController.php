@@ -19,13 +19,6 @@ class RestController extends Controller
 {
     public $request;
 
-
-    function __construct(Request $request)
-    {
-        $this->request = $request;
-    }
-
-
     function dispatch($resource, $id = null, $relation = null, $relationId = null): JsonResponse
     {
         $restResponse = null;
@@ -105,7 +98,7 @@ class RestController extends Controller
             throw new ClassNotFoundException("Controller '$classPath' doesn't exist.", new ErrorException());
         }
 
-        $instance = new $classPath();
+        $instance = new $classPath($this->request);
         $instance->setTraitRequest($this->request);
 
         return $instance;
