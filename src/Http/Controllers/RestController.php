@@ -8,6 +8,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use RobinMarechal\RestApi\Rest\HandleRestRequest;
+use RobinMarechal\RestApi\Rest\RestResponse;
 use Symfony\Component\Debug\Exception\ClassNotFoundException;
 use function camel_case;
 use function class_exists;
@@ -27,37 +28,28 @@ class RestController extends Controller
 
     function dispatch($resource, $id = null, $relation = null, $relationId = null): JsonResponse
     {
-        $response = null;
+        $restResponse = null;
 
         switch ($this->request->getMethod()) {
             case 'GET':
-                $response = $this->handleGet($resource, $id, $relation, $relationId);
+                $restResponse = $this->handleGet($resource, $id, $relation, $relationId);
                 break;
             case 'POST':
-                $response = $this->handlePost($resource);
+                $restResponse = $this->handlePost($resource);
                 break;
             case 'PUT':
-                $response = $this->handlePut($resource, $id);
+                $restResponse = $this->handlePut($resource, $id);
                 break;
             case 'DELETE':
-                $response = $this->handleDelete($resource, $id);
+                $restResponse = $this->handleDelete($resource, $id);
                 break;
         }
 
-        if (config('rest.allow_cors')) {
-            $response->header('Access-Control-Allow-Origin', config('rest.allow_origins'));
-
-            $methodsArray = config('rest.http_methods');
-            $methodsString = join(', ', array_values($methodsArray));
-
-            $response->header('Access-Control-Allow-Methods', $methodsString);
-        }
-
-        return $response;
+        return $restResponse->toJsonResponse();
     }
 
 
-    public function handleGet($resource, $id = null, $relation = null, $relationId = null): JsonResponse
+    public function handleGet($resource, $id = null, $relation = null, $relationId = null): RestResponse
     {
         $controller = $this->prepareController($resource);
 
@@ -75,7 +67,7 @@ class RestController extends Controller
     }
 
 
-    public function handlePost($resource): JsonResponse
+    public function handlePost($resource): RestResponse
     {
         $controller = $this->prepareController($resource);
 
@@ -83,7 +75,7 @@ class RestController extends Controller
     }
 
 
-    public function handlePut($resource, $id): JsonResponse
+    public function handlePut($resource, $id): RestResponse
     {
         $controller = $this->prepareController($resource);
 
@@ -91,7 +83,7 @@ class RestController extends Controller
     }
 
 
-    public function handleDelete($resource, $id): JsonResponse
+    public function handleDelete($resource, $id): RestResponse
     {
         $controller = $this->prepareController($resource);
 

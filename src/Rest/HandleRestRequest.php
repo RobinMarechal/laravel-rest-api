@@ -18,6 +18,7 @@ use function str_singular;
 trait HandleRestRequest
 {
     protected $traitRequest;
+
     protected $postValues;
 
 
@@ -39,36 +40,34 @@ trait HandleRestRequest
      * ------------------------------------------------------------------
      */
 
-    public function getById($id): Response
+    public function getById($id): RestResponse
     {
         $class = Helper::getRelatedModelClassName($this);
-        $resp = $this->defaultGetById($class, $id);
 
-        return \response()->json($resp->getData(), $resp->getCode());
+        return $this->defaultGetById($class, $id);
     }
 
 
-    public function defaultGetById($class, $id): ResponseData
+    public function defaultGetById($class, $id): RestResponse
     {
         $data = QueryBuilder::getPreparedQuery($class)
                             ->find($id);
 
-        return new ResponseData($data, Response::HTTP_OK);
+        return new RestResponse($data, Response::HTTP_OK);
     }
 
 
-    public function getFromTo($from, $to): Response
+    public function getFromTo($from, $to): RestResponse
     {
         $class = Helper::getRelatedModelClassName($this);
-        $resp = $this->defaultGetFromTo($class, $from, $to);
 
-        return \response()->json($resp->getData(), $resp->getCode());
+        return $this->defaultGetFromTo($class, $from, $to);
     }
 
 
-    public function defaultGetFromTo($class, $from, $to, $field = null): ResponseData
+    public function defaultGetFromTo($class, $from, $to, $field = null): RestResponse
     {
-        if(!$field){
+        if (!$field) {
             $field = config('rest.default_temporal_field');
         }
 
@@ -78,105 +77,102 @@ trait HandleRestRequest
                              ->whereBetween($field, [$fromCarbon, $toCarbon])
                              ->get();
 
-        return new ResponseData($array, Response::HTTP_OK);
+        return new RestResponse($array, Response::HTTP_OK);
     }
 
 
-    public function put($id): Response
+    public function put($id): RestResponse
     {
         $class = Helper::getRelatedModelClassName($this);
-        $resp = $this->defaultPut($class, $id);
 
-        return \response()->json($resp->getData(), $resp->getCode());
+        return $this->defaultPut($class, $id);
     }
 
 
-    public function defaultPut($class, $id): ResponseData
+    public function defaultPut($class, $id): RestResponse
     {
         $data = $this->defaultGetById($class, $id)
                      ->getData();
         if ($data == null) {
-            return new ResponseData(null, Response::HTTP_BAD_REQUEST);
+            return new RestResponse(null, Response::HTTP_BAD_REQUEST);
         }
         $data->update($this->traitRequest->all());
         if ($this->userWantsAll()) {
             $data = $this->all()->getData();
         }
 
-        return new ResponseData($data, Response::HTTP_OK);
+        return new RestResponse($data, Response::HTTP_OK);
     }
 
 
     protected function userWantsAll(): bool
     {
         $allKeyword = config('rest.request_keywords.get_all');
+
         return $this->traitRequest->filled($allKeyword) && $this->traitRequest->get($allKeyword) == true;
     }
 
 
-    public function all(): Response
+    public function all(): RestResponse
     {
         $class = Helper::getRelatedModelClassName($this);
-        $resp = $this->defaultAll($class);
 
-        return \response()->json($resp->getData(), $resp->getCode());
+        return $this->defaultAll($class);
     }
 
 
-    public function defaultAll($class): ResponseData
+    public function defaultAll($class): RestResponse
     {
         $data = QueryBuilder::getPreparedQuery($class)
                             ->get();
 
-        return new ResponseData($data, Response::HTTP_OK);
+        return new RestResponse($data, Response::HTTP_OK);
     }
 
 
-    public function delete($id): Response
+    public function delete($id): RestResponse
     {
         $class = Helper::getRelatedModelClassName($this);
-        $resp = $this->defaultDelete($class, $id);
 
-        return \response()->json($resp->getData(), $resp->getCode());
+        return $this->defaultDelete($class, $id);
     }
 
 
-    public function defaultDelete($class, $id): ResponseData
+    public function defaultDelete($class, $id): RestResponse
     {
         $data = $class::find($id);
         if ($data == null) {
-            return new ResponseData(null, Response::HTTP_BAD_REQUEST);
+            return new RestResponse(null, Response::HTTP_BAD_REQUEST);
         }
         $data->delete();
         if ($this->userWantsAll()) {
             $data = $this->all()->getData();
         }
 
-        return new ResponseData($data, Response::HTTP_OK);
+        return new RestResponse($data, Response::HTTP_OK);
     }
 
 
-    public function post(): Response
+    public function post(): RestResponse
     {
         $class = Helper::getRelatedModelClassName($this);
-        $resp = $this->defaultPost($class);
 
-        return \response()->json($resp->getData(), $resp->getCode());
+        return $this->defaultPost($class);
     }
 
 
-    public function defaultPost($class): ResponseData
+    public function defaultPost($class): RestResponse
     {
         $data = $class::create($this->postValues);
         if ($this->userWantsAll()) {
             $data = $this->all()->getData();
         }
 
-        return new ResponseData($data, Response::HTTP_CREATED);
+        return new RestResponse($data, Response::HTTP_CREATED);
     }
 
 
-    public function __call($method, $parameters): Response
+    public function __call($method, $parameters): RestResponse
     {
         if (strpos($method, "get_") == 0 && strlen($method) > 3 && is_array($parameters) && isset($parameters[0])) {
             $modelNamespace = config('rest.model_namespace');
@@ -204,7 +200,7 @@ trait HandleRestRequest
             }
 
             // Execute the query
-            $resp = $this->defaultGetRelationResultOfId($thisModelClassName, $id, $relatedModelClassName, $relation, $relatedId);
+            return $this->defaultGetRelationResultOfId($thisModelClassName, $id, $relatedModelClassName, $relation, $relatedId);
 
             return response()->json($resp->getData(), $resp->getCode());
         }
@@ -213,7 +209,7 @@ trait HandleRestRequest
     }
 
 
-    public function defaultGetRelationResultOfId($class, $id, $relationClass, $relationName, $relationId = null): ResponseData
+    public function defaultGetRelationResultOfId($class, $id, $relationClass, $relationName, $relationId = null): RestResponse
     {
         // No relation, redirect the request
         if ($relationId == null) {
@@ -230,7 +226,7 @@ trait HandleRestRequest
 
         // Nothing, we return null
         if (!isset($data)) {
-            return new ResponseData(null, Response::HTTP_NOT_FOUND);
+            return new RestResponse(null, Response::HTTP_NOT_FOUND);
         }
 
         // Find the wanted relation
@@ -245,7 +241,7 @@ trait HandleRestRequest
         $data = $data->where('id', "=", $relationId)
                      ->first();
 
-        return new ResponseData($data, Response::HTTP_OK);
+        return new RestResponse($data, Response::HTTP_OK);
     }
 
 
@@ -256,9 +252,9 @@ trait HandleRestRequest
      *
      * @warning if chained relations, all of these (but the last) have to be BelongsTo relations (singular relations),
      *          otherwise this will fail
-     * @return ResponseData the couple (json, Http code)
+     * @return RestResponse the couple (json, Http code)
      */
-    public function defaultGetRelationResult($class, $id, $relationName): ResponseData
+    public function defaultGetRelationResult($class, $id, $relationName): RestResponse
     {
         // Find the data with it's relation
         $data = $class::with([$relationName => function ($query) use ($class) {
@@ -267,7 +263,7 @@ trait HandleRestRequest
                       ->find($id);
         // Nothing, we send null
         if (!isset($data)) {
-            return new ResponseData(null, Response::HTTP_NOT_FOUND);
+            return new RestResponse(null, Response::HTTP_NOT_FOUND);
         }
 
         // Go forward in the relations
@@ -276,6 +272,6 @@ trait HandleRestRequest
             $data = $data->$r;
         }
 
-        return new ResponseData($data, Response::HTTP_OK);
+        return new RestResponse($data, Response::HTTP_OK);
     }
 }
