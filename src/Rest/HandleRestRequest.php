@@ -53,7 +53,7 @@ trait HandleRestRequest
         $data = QueryBuilder::getPreparedQuery($class)
                             ->find($id);
 
-        return new RestResponse($data, Response::HTTP_OK);
+        return RestResponse::make($data, Response::HTTP_OK);
     }
 
 
@@ -77,7 +77,7 @@ trait HandleRestRequest
                              ->whereBetween($field, [$fromCarbon, $toCarbon])
                              ->get();
 
-        return new RestResponse($array, Response::HTTP_OK);
+        return RestResponse::make($array, Response::HTTP_OK);
     }
 
 
@@ -94,14 +94,14 @@ trait HandleRestRequest
         $data = $this->defaultGetById($class, $id)
                      ->getData();
         if ($data == null) {
-            return new RestResponse(null, Response::HTTP_BAD_REQUEST);
+            return RestResponse::make(null, Response::HTTP_BAD_REQUEST);
         }
         $data->update($this->traitRequest->all());
         if ($this->userWantsAll()) {
             $data = $this->all()->getData();
         }
 
-        return new RestResponse($data, Response::HTTP_OK);
+        return RestResponse::make($data, Response::HTTP_OK);
     }
 
 
@@ -126,7 +126,7 @@ trait HandleRestRequest
         $data = QueryBuilder::getPreparedQuery($class)
                             ->get();
 
-        return new RestResponse($data, Response::HTTP_OK);
+        return RestResponse::make($data, Response::HTTP_OK);
     }
 
 
@@ -142,14 +142,14 @@ trait HandleRestRequest
     {
         $data = $class::find($id);
         if ($data == null) {
-            return new RestResponse(null, Response::HTTP_BAD_REQUEST);
+            return RestResponse::make(null, Response::HTTP_BAD_REQUEST);
         }
         $data->delete();
         if ($this->userWantsAll()) {
             $data = $this->all()->getData();
         }
 
-        return new RestResponse($data, Response::HTTP_OK);
+        return RestResponse::make($data, Response::HTTP_OK);
     }
 
 
@@ -168,7 +168,7 @@ trait HandleRestRequest
             $data = $this->all()->getData();
         }
 
-        return new RestResponse($data, Response::HTTP_CREATED);
+        return RestResponse::make($data, Response::HTTP_CREATED);
     }
 
 
@@ -226,7 +226,7 @@ trait HandleRestRequest
 
         // Nothing, we return null
         if (!isset($data)) {
-            return new RestResponse(null, Response::HTTP_NOT_FOUND);
+            return RestResponse::make(null, Response::HTTP_NOT_FOUND);
         }
 
         // Find the wanted relation
@@ -241,7 +241,7 @@ trait HandleRestRequest
         $data = $data->where('id', "=", $relationId)
                      ->first();
 
-        return new RestResponse($data, Response::HTTP_OK);
+        return RestResponse::make($data, Response::HTTP_OK);
     }
 
 
@@ -263,7 +263,7 @@ trait HandleRestRequest
                       ->find($id);
         // Nothing, we send null
         if (!isset($data)) {
-            return new RestResponse(null, Response::HTTP_NOT_FOUND);
+            return RestResponse::make(null, Response::HTTP_NOT_FOUND);
         }
 
         // Go forward in the relations
@@ -272,6 +272,6 @@ trait HandleRestRequest
             $data = $data->$r;
         }
 
-        return new RestResponse($data, Response::HTTP_OK);
+        return RestResponse::make($data, Response::HTTP_OK);
     }
 }

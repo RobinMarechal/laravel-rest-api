@@ -24,6 +24,12 @@ class RestResponse
     }
 
 
+    public static function make($data, $code = 200)
+    {
+        return new static($data, $code);
+    }
+
+
     /**
      * @return mixed
      */

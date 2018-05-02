@@ -3,6 +3,7 @@
 namespace RobinMarechal\RestApi;
 
 use App\Http\Middleware\Cors;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use RobinMarechal\RestApi\Commands\ApiTablesCommand;
 use RobinMarechal\RestApi\Controllers\ApiController;
