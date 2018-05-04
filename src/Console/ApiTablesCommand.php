@@ -180,17 +180,22 @@ class ApiTablesCommand extends Command
     protected function parseArgs()
     {
         // plural and snake in case the user entered a model name instead of a table name
-        $this->tableName = str_plural(snake_case($this->argument('table')));
+
+        // Forced to use str_plural(str_singular(...)) because of a bug pluralizing 'menus' as 'menuses'
+        $this->tableName = str_plural(str_singular(snake_case($this->argument('table'))));
         $this->tableName = preg_replace('/__+/', '_', $this->tableName);
 
         $tmpUpperTableName = substr(camel_case("a_$this->tableName"), 1);
-        $tmpPluralUpper = str_plural($tmpUpperTableName);
+        // Forced to use str_plural(str_singular(...)) because of a bug pluralizing 'menus' as 'menuses'
+        $tmpControllerPrefix = config('rest.controller_plural') ? str_plural(str_singular($tmpUpperTableName)) : str_singular($tmpUpperTableName);
 
         // model's name is singular table's name with first letter uppercase
         $this->modelName = str_singular($tmpUpperTableName);
 
         // controller's name is table's name with first letter uppercase and followed by "Controller"
-        $this->controllerName = "{$tmpPluralUpper}Controller";
+        $this->controllerName = "{$tmpControllerPrefix}Controller";
+
+        dd($this->controllerName);
 
         // "field1,field2,..." => [field1, field2,...]
         $this->fillables = $this->parseArrayOption('fillables');
