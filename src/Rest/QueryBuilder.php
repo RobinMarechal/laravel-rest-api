@@ -100,7 +100,7 @@ class QueryBuilder
     }
 
 
-    // ?....&from=..&to=...
+    // ?...&from=..&to=...
 
     public function applyLimitingParameters()
     {
@@ -144,7 +144,7 @@ class QueryBuilder
             foreach ($orderByArray as $orderBy) {
                 $order = 'asc';
 
-                if($orderBy[0] == '-'){
+                if ($orderBy[0] == '-') {
                     $order = 'desc';
                     $orderBy = substr($orderBy, 1);
                 }
@@ -203,7 +203,7 @@ class QueryBuilder
     }
 
 
-    protected function getRawArrayFromString($str): array 
+    protected function getRawArrayFromString($str): array
     {
         $withKeyword = config('rest.request_keywords.with');
 
