@@ -89,8 +89,7 @@ class RestController extends Controller
         $cfg = config('rest');
 
         $controllerPrefix = strtoupper($resource[0]) . camel_case(substr($resource, 1));
-        dd($controllerPrefix);
-        $controllerPrefix = $cfg['controller_plural'] ? str_plural($controllerPrefix) : str_singular($controllerPrefix);
+        $controllerPrefix = $cfg['controller_plural'] ? str_plural(str_singular($controllerPrefix)) : str_singular($controllerPrefix);
 
         $className = $controllerPrefix . "Controller";
         $classPath = $cfg['controller_namespace'] . $className;
