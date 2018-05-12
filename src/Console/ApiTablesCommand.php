@@ -194,9 +194,7 @@ class ApiTablesCommand extends Command
 
         // controller's name is table's name with first letter uppercase and followed by "Controller"
         $this->controllerName = "{$tmpControllerPrefix}Controller";
-
-        dd($this->controllerName);
-
+        
         // "field1,field2,..." => [field1, field2,...]
         $this->fillables = $this->parseArrayOption('fillables');
 

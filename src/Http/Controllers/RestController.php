@@ -46,7 +46,7 @@ class RestController extends Controller
     {
         $controller = $this->prepareController($resource);
 
-        if ($relation) { // -> /api/users/5/posts
+        if ($relation) { // -> /api/users/5/posts 
             $function = camel_case("get_" . $relation);
 
             return $controller->$function($id, $relationId);
