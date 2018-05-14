@@ -31,12 +31,12 @@ class QueryBuilder
     public $cfg;
 
     /**
-     * @var \Illuminate\Database\Eloquent\Builder
+     * @var \Illuminate\Database\Eloquent\Builder | Illuminate\Database\Eloquent\Relations\HasMany
      */
     private $query;
 
 
-    function __construct(Builder &$query, $class)
+    function __construct(&$query, $class)
     {
         $this->query = $query;
         $this->class = $class;
@@ -44,7 +44,7 @@ class QueryBuilder
     }
 
 
-    public static function getPreparedQuery($class): Builder
+    public static function getPreparedQuery($class)
     {
         $query = $class::query();
 
@@ -52,7 +52,7 @@ class QueryBuilder
     }
 
 
-    public static function buildQuery(&$query, $class): Builder
+    public static function buildQuery(&$query, $class)
     {
         $instance = new QueryBuilder($query, $class);
         $instance->build();
@@ -295,7 +295,7 @@ class QueryBuilder
     }
 
 
-    protected function getBuiltQuery(): Builder
+    protected function getBuiltQuery()
     {
         return $this->query;
     }

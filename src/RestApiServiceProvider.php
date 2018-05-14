@@ -18,7 +18,7 @@ class RestApiServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        Route::pattern('resource', '.+s'); // plural
+        Route::pattern('resource', '[a-zA-Z0-9]+s'); // plural
         Route::pattern('id', '[0-9]+'); // number
         Route::pattern('relationId', '[0-9]+'); // number
 
