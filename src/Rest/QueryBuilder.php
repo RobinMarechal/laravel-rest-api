@@ -16,12 +16,6 @@ use Illuminate\Support\Facades\Request;
 use function explode;
 use function strpos;
 
-/**
- * Created by PhpStorm.
- * User: Utilisateur
- * Date: 22/09/2017
- * Time: 19:35
- */
 class QueryBuilder
 {
     public $class;
