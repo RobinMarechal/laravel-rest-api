@@ -216,5 +216,14 @@ return [
          * Default: all
          */
         'get_all' => 'all',
+
+        /**
+         * Keyword used to retrieve all relations of a data
+         * Ex: (GET) .../api/users/15?with=*
+         *      => fill fetch all relations of the model
+         *
+         * Default: *
+         */
+        'with_all' => '*',
     ],
 ];

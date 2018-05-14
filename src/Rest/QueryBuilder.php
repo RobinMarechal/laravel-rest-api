@@ -80,10 +80,11 @@ class QueryBuilder
     public function applyRelationsParameters()
     {
         $withKeyword = config('rest.request_keywords.load_relations');
+        $withAllKeyword = config('rest.request_keyword.with_all');
 
         if ($this->request->filled($withKeyword)) {
             $with = $this->request->get($withKeyword);
-            if ($with == "all" || $with == '*') {
+            if ($with == $withAllKeyword) {
                 $this->query->withAll();
             }
             else {
