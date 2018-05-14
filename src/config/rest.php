@@ -220,10 +220,18 @@ return [
         /**
          * Keyword used to retrieve all relations of a data
          * Ex: (GET) .../api/users/15?with=*
-         *      => fill fetch all relations of the model
+         *      => will fetch all relations of the model
          *
          * Default: *
          */
         'with_all' => '*',
+
+        /**
+         * Keyword used to sync two models
+         * Ex: (GET) .../api/users/5/permissions/2?sync=true
+         *
+         * Default: sync
+         */
+        'sync' => 'sync',
     ],
 ];
