@@ -108,10 +108,10 @@ trait GenerateFileTemplates
     protected function compileModelTimestamps($template, RestApiTablesCommand $commandObj)
     {
         if (!$commandObj->timestamps) {
-            return str_replace('{{timestamps}}', '', $template);
+            return str_replace('{{timestamps}}', "\tpublic \$timestamps = false;\n", $template);
         }
 
-        return str_replace('{{timestamps}}', "\tpublic \$timestamps = true;\n", $template);
+        return str_replace('{{timestamps}}', '', $template);
     }
 
 
