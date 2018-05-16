@@ -77,13 +77,16 @@ class RestResponse
     {
         $response = \response()->json(['data' => $this->data], $this->code);
 
+        $response->header('Content-Type', 'application/json');
+
         if (config('rest.allow_cors')) {
-            $response->header('Access-Control-Allow-Origin', config('rest.allow_origins'));
 
             $methodsArray = config('rest.http_methods');
             $methodsString = join(', ', array_values($methodsArray));
 
-            $response->header('Access-Control-Allow-Methods', $methodsString);
+            $response->header('Access-Control-Allow-Origin', config('rest.allow_origins'));
+            $response->header('Access-Control-Allow-Methods', "$methodsString, OPTIONS");
+            $response->header('Access-Control-Allow-Headers', "Content-Type, Origin");
             $response->header('Access-Control-Allow-Credentials', true);
         }
 

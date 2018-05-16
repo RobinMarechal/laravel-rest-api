@@ -12,7 +12,7 @@ use RobinMarechal\RestApi\Http\Helper;
 
 trait GenerateFileTemplates
 {
-    protected function compileControllerTemplate(ApiTablesCommand $commandObj)
+    protected function compileControllerTemplate(RestApiTablesCommand $commandObj)
     {
         $template = $this->getControllerTemplate();
         $template = str_replace("{{controller_namespace}}", $commandObj->controllersNamespace, $template);
@@ -22,7 +22,7 @@ trait GenerateFileTemplates
     }
 
 
-    protected function compileModelTemplate(ApiTablesCommand $commandObj)
+    protected function compileModelTemplate(RestApiTablesCommand $commandObj)
     {
         $template = $this->getModelTemplate();
         $template = $this->compileModelNamespace($template, $commandObj);
@@ -34,7 +34,7 @@ trait GenerateFileTemplates
     }
 
 
-    protected function compileModelAttributes($template, ApiTablesCommand $commandObj)
+    protected function compileModelAttributes($template, RestApiTablesCommand $commandObj)
     {
         $template = $this->compileModelFillables($template, $commandObj);
         $template = $this->compileModelHidden($template, $commandObj);
@@ -62,13 +62,13 @@ trait GenerateFileTemplates
     }
 
 
-    protected function compileModelNamespace($template, ApiTablesCommand $commandObj)
+    protected function compileModelNamespace($template, RestApiTablesCommand $commandObj)
     {
         return str_replace('{{model_namespace}}', $commandObj->modelsNamespace, $template);
     }
 
 
-    protected function compileModelName($template, ApiTablesCommand $commandObj)
+    protected function compileModelName($template, RestApiTablesCommand $commandObj)
     {
         return str_replace('{{model_name}}', $commandObj->modelName, $template);
     }
@@ -87,25 +87,25 @@ trait GenerateFileTemplates
     }
 
 
-    protected function compileModelFillables($template, ApiTablesCommand $commandObj)
+    protected function compileModelFillables($template, RestApiTablesCommand $commandObj)
     {
-        return $this->compileModelArrayAttribute($template, '{{fillables}}', $commandObj->fillables, 'fillables');
+        return $this->compileModelArrayAttribute($template, '{{fillables}}', $commandObj->fillables, 'fillable', 'protected');
     }
 
 
-    protected function compileModelHidden($template, ApiTablesCommand $commandObj)
+    protected function compileModelHidden($template, RestApiTablesCommand $commandObj)
     {
-        return $this->compileModelArrayAttribute($template, '{{hidden}}', $commandObj->hidden, 'hidden');
+        return $this->compileModelArrayAttribute($template, '{{hidden}}', $commandObj->hidden, 'hidden', 'protected');
     }
 
 
-    protected function compileModelDates($template, ApiTablesCommand $commandObj)
+    protected function compileModelDates($template, RestApiTablesCommand $commandObj)
     {
-        return $this->compileModelArrayAttribute($template, '{{dates}}', $commandObj->dates, 'dates');
+        return $this->compileModelArrayAttribute($template, '{{dates}}', $commandObj->dates, 'dates', 'protected');
     }
 
 
-    protected function compileModelTimestamps($template, ApiTablesCommand $commandObj)
+    protected function compileModelTimestamps($template, RestApiTablesCommand $commandObj)
     {
         if (!$commandObj->timestamps) {
             return str_replace('{{timestamps}}', '', $template);
@@ -115,7 +115,7 @@ trait GenerateFileTemplates
     }
 
 
-    protected function compileModelSoftDeletes($template, ApiTablesCommand $commandObj)
+    protected function compileModelSoftDeletes($template, RestApiTablesCommand $commandObj)
     {
         if (!$commandObj->softDeletes) {
             $template = str_replace('{{import_softdeletes}}', '', $template);
@@ -128,7 +128,7 @@ trait GenerateFileTemplates
     }
 
 
-    protected function compileModelRelations($template, ApiTablesCommand $commandObj)
+    protected function compileModelRelations($template, RestApiTablesCommand $commandObj)
     {
         foreach ($commandObj->parsedRelations as $attrs) {
             $method = Helper::arrayGetOrNull($attrs, 'method');

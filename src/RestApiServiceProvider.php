@@ -5,7 +5,7 @@ namespace RobinMarechal\RestApi;
 use App\Http\Middleware\Cors;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
-use RobinMarechal\RestApi\Commands\ApiTablesCommand;
+use RobinMarechal\RestApi\Commands\RestApiTablesCommand;
 use RobinMarechal\RestApi\Controllers\ApiController;
 use RobinMarechal\RestApi\Controllers\RestController;
 
@@ -31,10 +31,10 @@ class RestApiServiceProvider extends ServiceProvider
         $this->app->make(RestController::class);
 
         $this->loadRoutesFrom(__DIR__ . '/routes/rest-api-routes.php');
-
+        
         if ($this->app->runningInConsole()) {
             $this->commands([
-                ApiTablesCommand::class
+                RestApiTablesCommand::class
             ]);
         }
     }

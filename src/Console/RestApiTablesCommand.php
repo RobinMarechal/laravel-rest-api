@@ -11,7 +11,7 @@ use League\Flysystem\FileExistsException;
  * @category Console_Command
  * @package  App\Console\Commands\Api
  */
-class ApiTablesCommand extends Command
+class RestApiTablesCommand extends Command
 {
     use GenerateFileTemplates;
 
@@ -54,7 +54,7 @@ class ApiTablesCommand extends Command
      * If the model should use timestamp fields
      * @var bool
      */
-    public $timestamps = true;
+    public $timestamps = false;
 
     /**
      * Additional date fields
@@ -115,10 +115,10 @@ class ApiTablesCommand extends Command
      *
      * @var string
      */
-    protected $signature = "api:table {table} 
+    protected $signature = "rest:table {table} 
                                     {--F|fillables=} 
                                     {--R|relations=} 
-                                    {--T|timestamps=} 
+                                    {--T|timestamps} 
                                     {--H|hidden=} 
                                     {--softDeletes} 
                                     {--D|dates=} 
@@ -208,7 +208,7 @@ class ApiTablesCommand extends Command
         $this->hidden = $this->parseArrayOption('hidden');
 
         // true = 'true|1|yes'
-        $this->timestamps = $this->parseBooleanOption('timestamps');
+        $this->timestamps = $this->option('timestamps');
 
         // true = 'true|1|yes'
         $this->softDeletes = $this->parseBooleanOption('softDeletes');
