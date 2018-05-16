@@ -84,6 +84,7 @@ class RestResponse
             $methodsString = join(', ', array_values($methodsArray));
 
             $response->header('Access-Control-Allow-Methods', $methodsString);
+            $response->header('Access-Control-Allow-Credentials', true);
         }
 
         return $response;
