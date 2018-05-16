@@ -1,16 +1,8 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: robin
- * Date: 24/02/18
- * Time: 15:47
- */
 
 namespace RobinMarechal\RestApi\Rest;
 
-use App\User;
 use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Request;
 use function explode;
@@ -38,11 +30,27 @@ class QueryBuilder
     }
 
 
-    public static function getPreparedQuery($class)
+    public static function prepareQuery($class, $ignoreParams = false)
     {
         $query = $class::query();
 
+        if ($ignoreParams) {
+            return $query;
+        }
+
         return self::buildQuery($query, $class);
+    }
+
+
+    public static function prepareQueryOnlyRelationAndFieldsSelection($class)
+    {
+        $query = $class::query();
+
+        $instance = new QueryBuilder($query, $class);
+        $instance->applyRelationsParameters();
+        $instance->applyFieldSelectingParameters();
+
+        return $instance->getBuiltQuery();
     }
 
 

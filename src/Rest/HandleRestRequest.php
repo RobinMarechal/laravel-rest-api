@@ -15,6 +15,14 @@ trait HandleRestRequest
 
     protected $postValues;
 
+    private $DETACH = 'detach';
+
+    private $ATTACH = 'attach';
+
+    private $SYNC = 'sync';
+
+    private $SYNC_WITHOUT_DETACHING = 'syncWithoutDetaching';
+
 
     public function getTraitRequest(): Request
     {
@@ -26,6 +34,14 @@ trait HandleRestRequest
     {
         $this->traitRequest = $request;
         $this->postValues = $request->json()->all();
+    }
+
+
+    protected function userWantsAll(): bool
+    {
+        $allKeyword = config('rest.request_keywords.get_all');
+
+        return $this->traitRequest->filled($allKeyword) && $this->traitRequest->get($allKeyword) == true;
     }
 
 
@@ -42,9 +58,9 @@ trait HandleRestRequest
     }
 
 
-    public function defaultGetById($class, $id): RestResponse
+    public function defaultGetById($class, $id, $ignoreParams = false): RestResponse
     {
-        $data = QueryBuilder::getPreparedQuery($class)
+        $data = QueryBuilder::prepareQueryOnlyRelationAndFieldsSelection($class)
                             ->find($id);
 
         return RestResponse::make($data, Response::HTTP_OK);
@@ -67,7 +83,7 @@ trait HandleRestRequest
 
         $fromCarbon = Carbon::parse($from);
         $toCarbon = Carbon::parse($to);
-        $array = QueryBuilder::getPreparedQuery($class)
+        $array = QueryBuilder::prepareQuery($class)
                              ->whereBetween($field, [$fromCarbon, $toCarbon])
                              ->get();
 
@@ -85,7 +101,7 @@ trait HandleRestRequest
 
     public function defaultPut($class, $id): RestResponse
     {
-        $data = $this->defaultGetById($class, $id)
+        $data = $this->defaultGetById($class, $id, true)
                      ->getData();
         if ($data == null) {
             return RestResponse::make(null, Response::HTTP_BAD_REQUEST);
@@ -94,16 +110,31 @@ trait HandleRestRequest
         if ($this->userWantsAll()) {
             $data = $this->all()->getData();
         }
+        else{
+            $data = $this->defaultGetById($class, $id)
+                         ->getData();
+        }
 
         return RestResponse::make($data, Response::HTTP_OK);
     }
 
 
-    protected function userWantsAll(): bool
+    public function sync($id, $relation, $relationId): RestResponse
     {
-        $allKeyword = config('rest.request_keywords.get_all');
+        $class = Helper::getRelatedModelClassName($this);
 
-        return $this->traitRequest->filled($allKeyword) && $this->traitRequest->get($allKeyword) == true;
+        return $this->defaultSync($class, $id, $relation, $relationId);
+    }
+
+
+    public function defaultSync($class, $id, $relation, $relationId): RestResponse
+    {
+        if ($this->traitRequest->query(config('rest.request_keywords.sync_without_detaching'), true)) {
+            return $this->syncAttachOrDetach($this->SYNC_WITHOUT_DETACHING, $class, $id, $relation, $relationId);
+        }
+        else {
+            return $this->syncAttachOrDetach($this->SYNC, $class, $id, $relation, $relationId);
+        }
     }
 
 
@@ -117,7 +148,7 @@ trait HandleRestRequest
 
     public function defaultAll($class): RestResponse
     {
-        $data = QueryBuilder::getPreparedQuery($class)
+        $data = QueryBuilder::prepareQuery($class)
                             ->get();
 
         return RestResponse::make($data, Response::HTTP_OK);
@@ -147,6 +178,20 @@ trait HandleRestRequest
     }
 
 
+    public function detach($id, $relation, $relationId): RestResponse
+    {
+        $class = Helper::getRelatedModelClassName($this);
+
+        return $this->defaultDetach($class, $id, $relation, $relationId);
+    }
+
+
+    public function defaultDetach($class, $id, $relation, $relationId): RestResponse
+    {
+        return $this->syncAttachOrDetach($this->DETACH, $class, $id, $relation, $relationId);
+    }
+
+
     public function post(): RestResponse
     {
         $class = Helper::getRelatedModelClassName($this);
@@ -163,6 +208,57 @@ trait HandleRestRequest
         }
 
         return RestResponse::make($data, Response::HTTP_CREATED);
+    }
+
+
+    public function attach($id, $relation, $relationId): RestResponse
+    {
+        $class = Helper::getRelatedModelClassName($this);
+
+        return $this->defaultAttach($class, $id, $relation, $relationId);
+    }
+
+
+    public function defaultAttach($class, $id, $relation, $relationId): RestResponse
+    {
+        return $this->syncAttachOrDetach($this->ATTACH, $class, $id, $relation, $relationId);
+    }
+
+
+    /**
+     * @param $attachMethod string sync, syncWithoutDetaching, attach or detach
+     * @param $relation
+     * @param $class
+     * @param $id
+     * @param $relationId
+     * @return RestResponse
+     */
+    private function syncAttachOrDetach($attachMethod, $class, $id, $relation, $relationId)
+    {
+        $data = $this->defaultGetById($class, $id)
+                     ->getData();
+
+        if ($data == null) {
+            return RestResponse::make(null, Response::HTTP_BAD_REQUEST);
+        }
+
+        if ($attachMethod === $this->DETACH) {
+            $data->{$relation}()->{$attachMethod}($relationId);
+        }
+        else {
+            $data->{$relation}()->{$attachMethod}($relationId, $this->traitRequest->all());
+        }
+
+        if ($this->userWantsAll()) {
+            $data = $this->all()->getData();
+        }
+        else {
+            // reload the data
+            $data = $this->defaultGetById($class, $id)
+                         ->getData();
+        }
+
+        return RestResponse::make($data, Response::HTTP_OK);
     }
 
 
@@ -199,7 +295,7 @@ trait HandleRestRequest
             return response()->json($resp->getData(), $resp->getCode());
         }
         FUNCTION_NOT_FOUND:
-        throw new UndefinedFunctionException();
+        throw new UndefinedFunctionException("Could not find method", new \ErrorException());
     }
 
 

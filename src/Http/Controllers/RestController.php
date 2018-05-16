@@ -7,6 +7,7 @@ use ErrorException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use League\Flysystem\Exception;
 use RobinMarechal\RestApi\Rest\HandleRestRequest;
 use RobinMarechal\RestApi\Rest\RestResponse;
 use Symfony\Component\Debug\Exception\ClassNotFoundException;
@@ -19,23 +20,30 @@ class RestController extends Controller
 {
     public $request;
 
+    private $controller;
+
 
     function dispatch($resource, $id = null, $relation = null, $relationId = null): JsonResponse
     {
         $restResponse = null;
 
+        $this->controller = $this->prepareController($resource);
+
         switch ($this->request->getMethod()) {
             case 'GET':
-                $restResponse = $this->handleGet($resource, $id, $relation, $relationId);
+                $restResponse = $this->handleGet($id, $relation, $relationId);
                 break;
             case 'POST':
-                $restResponse = $this->handlePost($resource);
+                // attach
+                $restResponse = $this->handlePost($id, $relation, $relationId);
                 break;
             case 'PUT':
-                $restResponse = $this->handlePut($resource, $id);
+                // sync
+                $restResponse = $this->handlePut($id, $relation, $relationId);
                 break;
             case 'DELETE':
-                $restResponse = $this->handleDelete($resource, $id);
+                // detach
+                $restResponse = $this->handleDelete($id, $relation, $relationId);
                 break;
             default:
                 return new JsonResponse(['data' => null]);
@@ -45,45 +53,49 @@ class RestController extends Controller
     }
 
 
-    public function handleGet($resource, $id = null, $relation = null, $relationId = null): RestResponse
+    public function handleGet($id = null, $relation = null, $relationId = null): RestResponse
     {
-        $controller = $this->prepareController($resource);
-
         if ($relation) { // -> /api/users/5/posts 
             $function = camel_case("get_" . $relation);
 
-            return $controller->$function($id, $relationId);
+            return $this->controller->$function($id, $relationId);
         }
         else if ($id) { // -> /api/users/5
-            return $controller->getById($id);
+            return $this->controller->getById($id);
         }
         else { // -> /api/users
-            return $controller->all();
+            return $this->controller->all();
         }
     }
 
 
-    public function handlePost($resource): RestResponse
+    public function handlePost($id, $relation, $relationId): RestResponse
     {
-        $controller = $this->prepareController($resource);
+        if ($id && $relation && $relationId) {
+            return $this->controller->attach($id, $relation, $relationId);
+        }
 
-        return $controller->post();
+        return $this->controller->post();
     }
 
 
-    public function handlePut($resource, $id): RestResponse
+    public function handlePut($id, $relation, $relationId): RestResponse
     {
-        $controller = $this->prepareController($resource);
+        if ($relation && $relationId) {
+            return $this->controller->sync($id, $relation, $relationId);
+        }
 
-        return $controller->patch($id);
+        return $this->controller->put($id);
     }
 
 
-    public function handleDelete($resource, $id): RestResponse
+    public function handleDelete($id, $relation, $relationId): RestResponse
     {
-        $controller = $this->prepareController($resource);
+        if ($relation && $relationId) {
+            return $this->controller->detach($id, $relation, $relationId);
+        }
 
-        return $controller->delete($id);
+        return $this->controller->delete($id);
     }
 
 

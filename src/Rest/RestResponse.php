@@ -84,9 +84,9 @@ class RestResponse
             $methodsArray = config('rest.http_methods');
             $methodsString = join(', ', array_values($methodsArray));
 
-            $response->header('Access-Control-Allow-Origin', config('rest.allow_origins'));
-            $response->header('Access-Control-Allow-Methods', "$methodsString, OPTIONS");
-            $response->header('Access-Control-Allow-Headers', "Content-Type, Origin");
+//            $response->header('Access-Control-Allow-Origin', config('rest.allow_origins'));
+//            $response->header('Access-Control-Allow-Methods', "$methodsString, OPTIONS");
+//            $response->header('Access-Control-Allow-Headers', "Content-Type, Origin");
             $response->header('Access-Control-Allow-Credentials', true);
         }
 

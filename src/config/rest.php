@@ -227,11 +227,11 @@ return [
         'with_all' => '*',
 
         /**
-         * Keyword used to sync two models
-         * Ex: (GET) .../api/users/5/permissions/2?sync=true
+         * keyword used to sync two models with or without detaching
+         * EX: (POST) => .../api/users/1/roles/3?sync_without_detaching=true
          *
-         * Default: sync
+         * Default: sync_without_detaching
          */
-        'sync' => 'sync',
+        'sync_without_detaching' => 'sync_without_detaching',
     ],
 ];
