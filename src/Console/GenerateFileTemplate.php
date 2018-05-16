@@ -36,7 +36,7 @@ trait GenerateFileTemplates
 
     protected function compileModelAttributes($template, RestApiTablesCommand $commandObj)
     {
-        $template = $this->compileModelFillables($template, $commandObj);
+        $template = $this->compileModelFillable($template, $commandObj);
         $template = $this->compileModelHidden($template, $commandObj);
         $template = $this->compileModelDates($template, $commandObj);
         $template = $this->compileModelTimestamps($template, $commandObj);
@@ -87,9 +87,9 @@ trait GenerateFileTemplates
     }
 
 
-    protected function compileModelFillables($template, RestApiTablesCommand $commandObj)
+    protected function compileModelFillable($template, RestApiTablesCommand $commandObj)
     {
-        return $this->compileModelArrayAttribute($template, '{{fillables}}', $commandObj->fillables, 'fillable', 'protected');
+        return $this->compileModelArrayAttribute($template, '{{fillable}}', $commandObj->fillable, 'fillable', 'protected');
     }
 
 
@@ -156,7 +156,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class {{model_name}} extends Model
 {
-{{softdeletes}}{{timestamps}}{{dates}}{{fillables}}{{hidden}}
+{{softdeletes}}{{timestamps}}{{dates}}{{fillable}}{{hidden}}
 {{model_relation}}
 }';
     }

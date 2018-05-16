@@ -113,7 +113,7 @@ I've created an _Artisan_'s command that helps us to create these controllers an
 To create the controller and the model for a database table, simply execute the following command:
 ```bash
 php artisan api:table <table_name|model_name> 
-                            [--F|fillables=]
+                            [--F|fillable=]
                             [--H|hidden=]
                             [--D|dates=]
                             [--T|timestamps=] 
@@ -122,7 +122,7 @@ php artisan api:table <table_name|model_name>
                             [--M|migrations]
 ``` 
 
-- `--fillables=` (or `-F`) option takes a list of fields, seperated by a comma (`,`), that represents the `fillables`' field value of your model.
+- `--fillable=` (or `-F`) option takes a list of fields, seperated by a comma (`,`), that represents the `fillable`' field value of your model.
 - `--hidden=` (or `-H`) option takes a list of fields, seperated by a comma (`,`), that represents the `hidden`' field value of your model.
 - `--dates=` (or `-D`) option takes a list of fields, seperated by a comma (`,`), that represents the `date`' field value of your model.
 - `--timestamps=` (or `-T`) option is a boolean (`1|yes|true|` or `0|no|false`) that represents the `timestamps`' field value of your model.
@@ -138,7 +138,7 @@ _**Note**:  If you don't specify the function name option (`<function_name>`), t
 #### Example:
 
 ```bash
-php artisan api:table posts --fillables=title,content,user_id --relations="belongsTo User author, hasMany Comment"
+php artisan api:table posts --fillable=title,content,user_id --relations="belongsTo User author, hasMany Comment"
 ```
 <u>**Important**: Don't forget the quotes for the `--relations` options!</u>
 

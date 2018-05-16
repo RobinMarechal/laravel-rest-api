@@ -19,12 +19,6 @@ class RestController extends Controller
 {
     public $request;
 
-    public function __construct(Request $request)
-    {
-        parent::__construct($request);
-        $this->middleware(\Barryvdh\Cors\HandleCors::class);
-    }
-
 
     function dispatch($resource, $id = null, $relation = null, $relationId = null): JsonResponse
     {
@@ -44,7 +38,7 @@ class RestController extends Controller
                 $restResponse = $this->handleDelete($resource, $id);
                 break;
             default:
-                return response('');
+                return new JsonResponse(['data' => null]);
         }
 
         return $restResponse->toJsonResponse();

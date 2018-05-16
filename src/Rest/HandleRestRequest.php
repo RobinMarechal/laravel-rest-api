@@ -157,6 +157,8 @@ trait HandleRestRequest
 
     public function defaultPost($class): RestResponse
     {
+        dd('hello');
+        dd('hello', $this->request->all());
         $data = $class::create($this->postValues);
         if ($this->userWantsAll()) {
             $data = $this->all()->getData();

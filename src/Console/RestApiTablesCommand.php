@@ -78,7 +78,7 @@ class RestApiTablesCommand extends Command
      * the table's fillable fields
      * @var array
      */
-    public $fillables = [];
+    public $fillable = [];
 
     /**
      * The parsed relation functions
@@ -116,7 +116,7 @@ class RestApiTablesCommand extends Command
      * @var string
      */
     protected $signature = "rest:table {table} 
-                                    {--F|fillables=} 
+                                    {--F|fillable=} 
                                     {--R|relations=} 
                                     {--T|timestamps} 
                                     {--H|hidden=} 
@@ -196,7 +196,7 @@ class RestApiTablesCommand extends Command
         $this->controllerName = "{$tmpControllerPrefix}Controller";
         
         // "field1,field2,..." => [field1, field2,...]
-        $this->fillables = $this->parseArrayOption('fillables');
+        $this->fillable = $this->parseArrayOption('fillable');
 
         // "relation str 1, relation str 2" => [relation str 1, relation str 2];
         $this->relations = $this->parseArrayOption('relations');
