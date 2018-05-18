@@ -96,7 +96,7 @@ class QueryBuilder
                 $this->query->withAll();
             }
             else {
-                $withArr = explode(",", $this->request->get($withKeyword));
+                $withArr = explode(";", $this->request->get($withKeyword));
                 $this->query->with($withArr);
             }
         }
