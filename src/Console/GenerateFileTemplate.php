@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: robin
- * Date: 12/02/18
- * Time: 21:17
- */
 
 namespace RobinMarechal\RestApi\Commands;
 
