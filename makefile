@@ -2,8 +2,8 @@
 .PHONY: publish remove
 
 publish:
-	git add .
 	git tag v$(v)
+	git add .
 	git checkout -b $(v) v$(v)
 	git commit -m "$(m)"
 	git push origin $(v)

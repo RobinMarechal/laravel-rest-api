@@ -14,7 +14,7 @@ return [
      * Enable cross origin request.
      * If you're using this API as a distant API, you may enable this.
      * This will set the headers:
-     *  - 'Access-Conrol-Allow-Origin' to <allow-origins>'s value
+     *  - 'Access-Control-Allow-Origin' to <allow-origins>'s value
      *  - 'Access-Control-Allow-Methods' to the specified HTTP methods
      *
      * Default: false
