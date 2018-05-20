@@ -110,7 +110,7 @@ trait HandleRestRequest
         if ($this->userWantsAll()) {
             $data = $this->all()->getData();
         }
-        else{
+        else {
             $data = $this->defaultGetById($class, $id)
                          ->getData();
         }
@@ -264,11 +264,11 @@ trait HandleRestRequest
 
     public function __call($method, $parameters): RestResponse
     {
-        if (strpos($method, "get_") == 0 && strlen($method) > 3 && is_array($parameters) && isset($parameters[0])) {
+        if (strpos($method, "get_") === 0 && strlen($method) > 4 && is_array($parameters) && isset($parameters[0])) {
             $modelNamespace = config('rest.model_namespace');
 
             // Find the relation name (with first letter uppercase)
-            $relation = substr($method, 3);
+            $relation = substr($method, 4);
 
             // Find relation's model class name
             $relatedModelClassName = str_singular($relation);
@@ -290,7 +290,7 @@ trait HandleRestRequest
             }
 
             // Execute the query
-            return $this->defaultGetRelationResultOfId($thisModelClassName, $id, $relatedModelClassName, $relation, $relatedId);
+            return $this->defaultGetRelationResult($thisModelClassName, $id, $relatedModelClassName, $relation, $relatedId);
 
             return response()->json($resp->getData(), $resp->getCode());
         }
@@ -299,67 +299,30 @@ trait HandleRestRequest
     }
 
 
-    public function defaultGetRelationResultOfId($class, $id, $relationClass, $relationName, $relationId = null): RestResponse
+    public function defaultGetRelationResult($class, $id, $relationClass, $relationName, $relationId = null): RestResponse
     {
-        // No relation, redirect the request
-        if ($relationId == null) {
-            return $this->defaultGetRelationResult($class, $id, $relationName);
-        }
+        // relation function
+        $withFunction = function ($query) use ($relationClass, $relationId) {
+            $query = QueryBuilder::buildQuery($query, $relationClass);
+
+            if (!is_null($relationId)) {
+                $query->find($relationId);
+            }
+        };
 
         // Build the query with the relation
-        $data = $class::with([
-            $relationName => function ($query) use ($relationClass) {
-                QueryBuilder::buildQuery($query, $relationClass);
-            }])
-                      ->where((new $class())->getTable() . '.id', $id)
-                      ->first();
+        $data = $class::with([$relationName => $withFunction])
+                      ->find($id);
 
         // Nothing, we return null
         if (!isset($data)) {
             return RestResponse::make(null, Response::HTTP_NOT_FOUND);
         }
 
-        // Find the wanted relation
-        $rels = explode('.', $relationName);
-
-        // Go forward in the relations
-        foreach ($rels as $r) {
-            $data = $data->$r;
-        }
-
-        // Apply a filter in the final collection
-        $data = $data->where('id', "=", $relationId)
-                     ->first();
-
-        return RestResponse::make($data, Response::HTTP_OK);
-    }
-
-
-    /**
-     * @param $class        string the model (usually associated with the current controller) class name
-     * @param $id           int the id of the resource
-     * @param $relationName string the relation name. This can be chained relations, separated with '.' character.
-     *
-     * @warning if chained relations, all of these (but the last) have to be BelongsTo relations (singular relations),
-     *          otherwise this will fail
-     * @return RestResponse the couple (json, Http code)
-     */
-    public function defaultGetRelationResult($class, $id, $relationName): RestResponse
-    {
-        // Find the data with it's relation
-        $data = $class::with([$relationName => function ($query) use ($class) {
-            QueryBuilder::buildQuery($query, $class);
-        }])
-                      ->find($id);
-        // Nothing, we send null
-        if (!isset($data)) {
-            return RestResponse::make(null, Response::HTTP_NOT_FOUND);
-        }
-
-        // Go forward in the relations
-        $rels = explode('.', $relationName);
-        foreach ($rels as $r) {
-            $data = $data->$r;
+        // Retrieve the wanted relation only
+        $data = $data->$relationName;
+        if (!is_null($relationId)) {
+            $data = $data[0];
         }
 
         return RestResponse::make($data, Response::HTTP_OK);

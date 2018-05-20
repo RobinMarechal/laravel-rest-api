@@ -56,7 +56,7 @@ class RestController extends Controller
     public function handleGet($id = null, $relation = null, $relationId = null): RestResponse
     {
         if ($relation) { // -> /api/users/5/posts 
-            $function = camel_case("get_" . $relation);
+            $function = "get_{$relation}"; // -> get_posts
 
             return $this->controller->$function($id, $relationId);
         }
