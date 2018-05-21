@@ -264,7 +264,10 @@ trait HandleRestRequest
 
     public function __call($method, $parameters): RestResponse
     {
-        if (strpos($method, "get_") === 0 && strlen($method) > 4 && is_array($parameters) && isset($parameters[0])) {
+        $prefix = config('rest.controller_relation_function_prefix');
+
+        // 'strlen($method) > strlen($prefix)' is equivalent to 'isset($method[strlen($prefix)])'
+        if (strpos($method, $prefix) === 0 && isset($method[strlen($prefix)]) && is_array($parameters) && isset($parameters[0])) {
             $modelNamespace = config('rest.model_namespace');
 
             // Find the relation name (with first letter uppercase)

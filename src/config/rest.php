@@ -85,6 +85,15 @@ return [
     'default_temporal_field' => 'created_at',
 
     /**
+     * Controller's relation handler prefix
+     * For example, the url .../api/users/2/posts will try to call the method 'get_posts' of your Rest\UsersController
+     *              the url .../api/posts/2/user  will try to call the method 'get_user'  of your Rest\PostsController
+     *
+     * Default: get_
+     */
+    'controller_relation_function_prefix' => 'get_',
+
+    /**
      * HTTP methods
      */
     'http_methods' => [
