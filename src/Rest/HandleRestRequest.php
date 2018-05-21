@@ -267,11 +267,12 @@ trait HandleRestRequest
         $prefix = config('rest.controller_relation_function_prefix');
 
         // 'strlen($method) > strlen($prefix)' is equivalent to 'isset($method[strlen($prefix)])'
-        if (strpos($method, $prefix) === 0 && isset($method[strlen($prefix)]) && is_array($parameters) && isset($parameters[0])) {
+        $prefixLength = strlen($prefix);
+        if (strpos($method, $prefix) === 0 && isset($method[$prefixLength]) && is_array($parameters) && isset($parameters[0])) {
             $modelNamespace = config('rest.model_namespace');
 
             // Find the relation name (with first letter uppercase)
-            $relation = substr($method, 4);
+            $relation = substr($method, $prefixLength);
 
             // Find relation's model class name
             $relatedModelClassName = str_singular($relation);
