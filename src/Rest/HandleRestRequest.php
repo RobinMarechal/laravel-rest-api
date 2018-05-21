@@ -206,6 +206,10 @@ trait HandleRestRequest
         if ($this->userWantsAll()) {
             $data = $this->all()->getData();
         }
+        else {
+            $data = $this->defaultGetById($class, $data->id)
+                         ->getData();
+        }
 
         return RestResponse::make($data, Response::HTTP_CREATED);
     }
