@@ -247,10 +247,10 @@ trait HandleRestRequest
         }
 
         if ($attachMethod === $this->DETACH) {
-            $data->{$relation}()->{$attachMethod}($relationId);
+            $data->{$relation}()->{$attachMethod}([$relationId]);
         }
         else {
-            $data->{$relation}()->{$attachMethod}($relationId, $this->traitRequest->all());
+            $data->{$relation}()->{$attachMethod}([$relationId => $this->traitRequest->json()->all()]);
         }
 
         if ($this->userWantsAll()) {
