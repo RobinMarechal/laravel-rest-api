@@ -106,7 +106,7 @@ trait HandleRestRequest
         if ($data == null) {
             return RestResponse::make(null, Response::HTTP_BAD_REQUEST);
         }
-        $data->update($this->traitRequest->all());
+        $data->update($this->traitRequest->json()->all());
         if ($this->userWantsAll()) {
             $data = $this->all()->getData();
         }
@@ -330,7 +330,7 @@ trait HandleRestRequest
         // Retrieve the wanted relation only
         $data = $data->$relationName;
         if (!is_null($relationId)) {
-            $data = $data[0];
+            $data = isset($data[0]) ? $data[0] : null;
         }
 
         return RestResponse::make($data, Response::HTTP_OK);
