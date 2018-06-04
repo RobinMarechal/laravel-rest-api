@@ -1,5 +1,4 @@
 <?php
-
 namespace RobinMarechal\RestApi\Controllers;
 
 use App\Http\Controllers\Controller;
