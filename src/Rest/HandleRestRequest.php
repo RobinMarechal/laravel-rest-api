@@ -63,7 +63,7 @@ trait HandleRestRequest
         $data = QueryBuilder::prepareQueryOnlyRelationAndFieldsSelection($class)
                             ->find($id);
 
-        return RestResponse::make($data, Response::HTTP_OK);
+        return RestResponse::make($data, $data ? Response::HTTP_OK : Response::HTTP_NOT_FOUND);
     }
 
 
@@ -104,7 +104,7 @@ trait HandleRestRequest
         $data = $this->defaultGetById($class, $id, true)
                      ->getData();
         if ($data == null) {
-            return RestResponse::make(null, Response::HTTP_BAD_REQUEST);
+            return RestResponse::make(null, Response::HTTP_NOT_FOUND);
         }
         $data->update($this->traitRequest->json()->all());
         if ($this->userWantsAll()) {
@@ -167,7 +167,7 @@ trait HandleRestRequest
     {
         $data = $class::find($id);
         if ($data == null) {
-            return RestResponse::make(null, Response::HTTP_BAD_REQUEST);
+            return RestResponse::make(null, Response::HTTP_NOT_FOUND);
         }
         $data->delete();
         if ($this->userWantsAll()) {
@@ -243,14 +243,16 @@ trait HandleRestRequest
                      ->getData();
 
         if ($data == null) {
-            return RestResponse::make(null, Response::HTTP_BAD_REQUEST);
+            return RestResponse::make(null, Response::HTTP_NOT_FOUND);
         }
 
         if ($attachMethod === $this->DETACH) {
             $data->{$relation}()->{$attachMethod}([$relationId]);
+            $status = Response::HTTP_OK;
         }
         else {
             $data->{$relation}()->{$attachMethod}([$relationId => $this->traitRequest->json()->all()]);
+            $status = Response::HTTP_CREATED;
         }
 
         if ($this->userWantsAll()) {
@@ -262,7 +264,7 @@ trait HandleRestRequest
                          ->getData();
         }
 
-        return RestResponse::make($data, Response::HTTP_OK);
+        return RestResponse::make($data, $status);
     }
 
 

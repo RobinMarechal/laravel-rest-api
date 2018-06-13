@@ -10,23 +10,33 @@ class RestResponse
 
     private $data;
 
+    private $prefix;
+
 
     /**
      * ResponseData constructor.
      *
-     * @param $code
-     * @param $data
+     * @param      $data
+     * @param int  $code
+     * @param bool $error
      */
-    public function __construct($data, $code = 200)
+    public function __construct($data, $code = 200, $error = false)
     {
         $this->code = $code;
         $this->data = $data;
+        $this->prefix = $error ? 'error' : 'data';
     }
 
 
     public static function make($data, $code = 200)
     {
         return new static($data, $code);
+    }
+
+
+    public static function error($data, $code = 500)
+    {
+        return new static($data, $code, true);
     }
 
 
@@ -75,18 +85,14 @@ class RestResponse
      */
     public function toJsonResponse(): JsonResponse
     {
-        $response = \response()->json(['data' => $this->data], $this->code);
+        $response = \response()->json([$this->prefix => $this->data], $this->code);
 
         $response->header('Content-Type', 'application/json');
 
-        if (config('rest.allow_cors')) {
-
-            $methodsArray = config('rest.http_methods');
-            $methodsString = join(', ', array_values($methodsArray));
-
-//            $response->header('Access-Control-Allow-Origin', config('rest.allow_origins'));
-//            $response->header('Access-Control-Allow-Methods', "$methodsString, OPTIONS");
-//            $response->header('Access-Control-Allow-Headers', "Content-Type, Origin");
+        if (config('rest.allow_cors') && request()->getMethod() !== 'OPTIONS') {
+            $response->header('Access-Control-Allow-Origin', config('rest.allow_origins'));
+            $response->header("Access-Control-Allow-Headers", "Content-Type, Authorization, Origin");
+            $response->header("Access-Control-Allow-Methods", implode(", ", array_values(config('rest.http_methods'))));
             $response->header('Access-Control-Allow-Credentials', true);
         }
 
