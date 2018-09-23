@@ -109,22 +109,31 @@ class QueryBuilder
     {
         $limitKeyword = config('rest.request_keywords.limit');
         $offsetKeyword = config('rest.request_keywords.offset');
+        $pageKeyword = config('rest.request_keywords.page');
+
+        $limit = null;
+        $offset = 0;
 
         if ($this->request->filled($limitKeyword)) {
             $limit = $this->request->get($limitKeyword);
 
             if (strpos($limit, ',')) {
                 $arr = explode(',', $limit);
-                $this->query->take($arr[0]);
-                $this->query->skip($arr[1]);
+                $limit = $arr[0];
+                $offset = $arr[1];
             }
-            else {
-                $this->query->take($limit);
-            }
-        }
 
-        if ($this->request->filled($offsetKeyword)) {
-            $this->query->skip($this->request->get($offsetKeyword));
+            if($this->request->filled($pageKeyword)){
+                $page = $this->request->get($pageKeyword);
+                $offset = $limit * ($page - 1);
+            }
+
+            if (!$offset && !$this->request->filled($offsetKeyword)) {
+                $offset = $this->request->get($offsetKeyword);
+            }
+
+            $this->query->take($limit);
+            $this->query->skip($offset ?: 0);
         }
     }
 

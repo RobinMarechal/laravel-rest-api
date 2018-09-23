@@ -10,6 +10,15 @@ return [
      */
     'route_prefix' => 'api',
 
+
+    /**
+     * Rest routes middlewares
+     * Use the alias defined in the file ./App/Http/Kernel.php
+     *
+     * Default: []
+     */
+    'middlewares' => [],
+
     /**
      * Enable cross origin request.
      * If you're using this API as a distant API, you may enable this.
@@ -39,7 +48,64 @@ return [
      *
      * Default: App\Http\Controllers\\Rest\\
      */
-    'controller_namespace' => 'App\\Http\\Controllers\\Rest\\',
+    'rest_controllers_namespace' => 'App\\Http\\Controllers\\Rest\\',
+
+    /**
+     * True if you controller names (before 'Controller') should be in plural form
+     * Ex: 'UsersController' is plural, 'UserController' is singular
+     *
+     * Default: true
+     */
+    'rest_controllers_plural' => true,
+
+    /**
+     * Controller's relation handler prefix
+     * For example, the url .../api/users/2/posts will try to call the method 'get_posts' of your Rest\UsersController
+     *              the url .../api/posts/2/user  will try to call the method 'get_user'  of your Rest\PostsController
+     *
+     * Default: get_
+     */
+    'rest_controllers_relation_function_prefix' => 'get_',
+
+    /**
+     * The directory that contains your rest controllers
+     *
+     * Warning: your directory MUST terminate with '/';
+     *
+     * Default: 'app/Http/Controllers/Rest'
+     */
+    'rest_controllers_directory' => 'app/Http/Controllers/Rest/',
+
+
+    /**
+     * The name of the rest controllers' parent
+     *
+     *
+     * Default: RestController
+     */
+    'rest_parent_controller_name' => 'RestController',
+
+
+    /**
+     * The namespace of the rest controllers' parent
+     * If set to null, the value of 'rest_controllers_namespace' will be used
+     *
+     * Warning: your namespace MUST terminate with '\\';
+     *
+     * Default: null
+     */
+    'rest_parent_controller_namespace' => null,
+
+
+    /**
+     * The directory of the rest controllers' parent
+     * If set to null, the value of 'rest_controllers_directory' will be used
+     *
+     * Warning: your directory MUST terminate with '/';
+     *
+     * Default: null
+     */
+    'rest_parent_controller_directory' => null,
 
     /**
      * The namespace of your application's models
@@ -51,15 +117,6 @@ return [
     'model_namespace' => 'App\\',
 
     /**
-     * The directory that contains your rest controllers
-     *
-     * Warning: your directory MUST terminate with '/';
-     *
-     * Default: 'app/Http/Controllers/Rest'
-     */
-    'controller_directory' => 'app/Http/Controllers/Rest/',
-
-    /**
      * The directory that contains your models
      *
      * Warning: your directory MUST terminate with '/';
@@ -69,29 +126,12 @@ return [
     'model_directory' => 'app/',
 
     /**
-     * True if you controller names (before 'Controller') should be in plural form
-     * Ex: 'UsersController' is plural, 'UserController' is singular
-     *
-     * Default: true
-     */
-    'controller_plural' => true,
-
-    /**
      * Default temporal field if not overridden in your models
      * The temporal field is the field used with 'from' and 'to' request keywords (see request keywords from an to)
      *
      * Default: created_at
      */
     'default_temporal_field' => 'created_at',
-
-    /**
-     * Controller's relation handler prefix
-     * For example, the url .../api/users/2/posts will try to call the method 'get_posts' of your Rest\UsersController
-     *              the url .../api/posts/2/user  will try to call the method 'get_user'  of your Rest\PostsController
-     *
-     * Default: get_
-     */
-    'controller_relation_function_prefix' => 'get_',
 
     /**
      * HTTP methods
@@ -153,12 +193,25 @@ return [
 
         /**
          * Keyword used to skip a number of rows when 'limit' is used (like offset in SQL or skip() function with Eloquent)
-         * Ex: (GET) .../api/users?limit=5&offset5
+         * Ex: (GET) .../api/users?limit=5&offset=5
          *      => will get 5 users, skipping the first 5
+         *
+         * @warning If both 'page' and 'offset' are used, 'offset' will be ignored
          *
          * Default: offset
          */
         'offset' => 'offset',
+
+        /**
+         * Keyword used to ask for pagination. Easier to use than 'offset' param for pagination. Must be associated with 'limit'
+         * Ex: (GET) .../api/users?limit=5&page=2
+         *      => will get 5 users, from the 6th to the 10th
+         *
+         * @warning If both 'page' and 'offset' are used, 'offset' will be ignored
+         *
+         * Default: page
+         */
+        'page' => 'page',
 
         /**
          * Keyword used to order the result by a specific field

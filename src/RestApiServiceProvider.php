@@ -5,6 +5,7 @@ namespace RobinMarechal\RestApi;
 use App\Http\Middleware\Cors;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
+use RobinMarechal\RestApi\Commands\RestApiInitCommand;
 use RobinMarechal\RestApi\Commands\RestApiTablesCommand;
 use RobinMarechal\RestApi\Controllers\ApiController;
 use RobinMarechal\RestApi\Controllers\RestController;
@@ -23,18 +24,19 @@ class RestApiServiceProvider extends ServiceProvider
         Route::pattern('relationId', '[0-9]+'); // number
 
         $this->mergeConfigFrom(__DIR__ . '/config/rest.php', 'rest');
-        
+
         $this->publishes([
-            __DIR__.'/config/rest.php' => config_path('rest.php'),
+            __DIR__ . '/config/rest.php' => config_path('rest.php'),
         ]);
 
         $this->app->make(RestController::class);
 
         $this->loadRoutesFrom(__DIR__ . '/routes/rest-api-routes.php');
-        
+
         if ($this->app->runningInConsole()) {
             $this->commands([
-                RestApiTablesCommand::class
+                RestApiTablesCommand::class,
+                RestApiInitCommand::class
             ]);
         }
     }

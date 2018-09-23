@@ -3,7 +3,6 @@
 namespace RobinMarechal\RestApi\Commands;
 
 use Illuminate\Console\Command;
-use League\Flysystem\FileExistsException;
 
 /**
  * Class DeletePostsCommand
@@ -14,11 +13,6 @@ use League\Flysystem\FileExistsException;
 class RestApiTablesCommand extends Command
 {
     use GenerateFileTemplates;
-
-    const CONSOLE_RED = "\e[31m";
-    const CONSOLE_GREEN = "\e[32m";
-    const CONSOLE_DEFAULT = "\e[0m";
-    const CONSOLE_BOLD = "\e[1m";
 
     /**
      * The models' directory path
@@ -43,6 +37,19 @@ class RestApiTablesCommand extends Command
      * @var string
      */
     public $controllersNamespace;
+
+    /**
+     * The name of the controllers' parent
+     * @var string
+     */
+    public $parentControllerName;
+
+    /**
+     * The namespace of the controllers' parent
+     * @var string
+     */
+    public $parentControllerNamespace;
+
 
     /**
      * If a migration file should be created as well
@@ -129,7 +136,7 @@ class RestApiTablesCommand extends Command
      *
      * @var string
      */
-    protected $description = "Setup a table (and related model and controller) for REST API requests";
+    protected $description = "Setup a table (and related model and controller) for REST API requests.";
 
     /**
      * Relation methods that exists in Eloquent and that are allowed here
@@ -152,7 +159,7 @@ class RestApiTablesCommand extends Command
      */
     public function handle()
     {
-        $this->setUpPathAndNamespaces();
+        $this->registerConfig();
         $this->parseArgs();
         $this->createMigration();
         $this->parseRelations();
@@ -161,19 +168,24 @@ class RestApiTablesCommand extends Command
     }
 
 
-    protected function setUpPathAndNamespaces()
+    protected function registerConfig()
     {
-        $this->controllersBasePath = base_path(config('rest.controller_directory'));
-        $this->modelsBasePath = base_path(config('rest.model_directory'));
+        $this->controllersBasePath = base_path(config('rest.rest_controllers_directory'));
+        $this->controllersNamespace = config('rest.rest_controllers_namespace');
 
-        $this->controllersNamespace = config('rest.controller_namespace');
+        $this->parentControllerName = config('rest.rest_parent_controller_name');
+        $this->parentControllerNamespace = config('rest.rest_parent_controller_namespace') ?: config('rest.rest_controllers_namespace');
+
+        $this->modelsBasePath = base_path(config('rest.model_directory'));
         $this->modelsNamespace = config('rest.model_namespace');
 
-        $this->controllersBasePath = substr($this->controllersBasePath, 0, -1);
-        $this->modelsBasePath = substr($this->modelsBasePath, 0, -1);
-
-        $this->controllersNamespace = substr($this->controllersNamespace, 0, -1);
-        $this->modelsNamespace = substr($this->modelsNamespace, 0, -1);
+        CommandHelpers::removeLastChar(
+            $this->controllersBasePath,
+            $this->controllersNamespace,
+            $this->parentControllerNamespace,
+            $this->modelsBasePath,
+            $this->modelsNamespace
+        );
     }
 
 
@@ -187,14 +199,14 @@ class RestApiTablesCommand extends Command
 
         $tmpUpperTableName = substr(camel_case("a_$this->tableName"), 1);
         // Forced to use str_plural(str_singular(...)) because of a bug pluralizing 'menus' as 'menuses'
-        $tmpControllerPrefix = config('rest.controller_plural') ? str_plural(str_singular($tmpUpperTableName)) : str_singular($tmpUpperTableName);
+        $tmpControllerPrefix = config('rest.rest_controllers_plural') ? str_plural(str_singular($tmpUpperTableName)) : str_singular($tmpUpperTableName);
 
         // model's name is singular table's name with first letter uppercase
         $this->modelName = str_singular($tmpUpperTableName);
 
         // controller's name is table's name with first letter uppercase and followed by "Controller"
         $this->controllerName = "{$tmpControllerPrefix}Controller";
-        
+
         // "field1,field2,..." => [field1, field2,...]
         $this->fillable = $this->parseArrayOption('fillable');
 
@@ -254,8 +266,7 @@ class RestApiTablesCommand extends Command
 
                 if (isset($parts[2])) {
                     $funcName = $parts[2]; // user, posts...
-                }
-                else {
+                } else {
                     $funcName = snake_case($relatedModel);
 
                     if (!array_key_exists($method, $this->allowedRelationMethods)) {
@@ -265,8 +276,7 @@ class RestApiTablesCommand extends Command
                         $funcName = str_plural($funcName);
                     }
                 }
-            }
-            else {
+            } else {
                 // If only one param, then we only create then we only create an empty function
                 $funcName = $method;
             }
@@ -279,60 +289,32 @@ class RestApiTablesCommand extends Command
     protected function createModel()
     {
         if (!is_dir($this->modelsBasePath)) {
-            mkdir($this->modelsBasePath);
+            mkdir($this->modelsBasePath, 0777, true);
         }
 
         $modelFullPath = "$this->modelsBasePath/$this->modelName.php";
         $modelFileContent = $this->compileModelTemplate($this);
 
-        if ($this->createFile($modelFullPath, $modelFileContent)) {
-            $this->printSuccess("Created model: '$this->modelsNamespace\\$this->modelName' ('$modelFullPath')\n");
+        if (CommandHelpers::createFile($modelFullPath, $modelFileContent)) {
+            CommandHelpers::printSuccess("Created model: '$this->modelsNamespace\\$this->modelName' ('$modelFullPath')\n");
         }
-    }
-
-
-    protected function createFile($path, $content)
-    {
-        if (is_file($path)) {
-            $this->printError("ERROR: The file '$path' already exists!\n");
-
-            return false;
-        }
-
-        $resource = fopen($path, 'w');
-        fputs($resource, $content);
-        fclose($resource);
-
-        return true;
     }
 
 
     protected function createController()
     {
         if (!is_dir($this->controllersBasePath)) {
-            mkdir($this->controllersBasePath);
+            mkdir($this->controllersBasePath, 0777, true);
         }
 
         $controllerFullPath = "$this->controllersBasePath/$this->controllerName.php";
         $controllerFileContent = $this->compileControllerTemplate($this);
 
-        if ($this->createFile($controllerFullPath, $controllerFileContent)) {
-            $this->printSuccess("Created controller: '$this->controllersNamespace\\$this->controllerName' ('$controllerFullPath')\n");
+        if (CommandHelpers::createFile($controllerFullPath, $controllerFileContent)) {
+            CommandHelpers::printSuccess("Created controller: '$this->controllersNamespace\\$this->controllerName' ('$controllerFullPath')\n");
         }
     }
 
-
-    public function printError($msg)
-    {
-        print(self::CONSOLE_BOLD . self::CONSOLE_RED . $msg . self::CONSOLE_DEFAULT);
-    }
-
-
-
-    public function printSuccess($msg)
-    {
-        print(self::CONSOLE_BOLD . self::CONSOLE_GREEN . $msg . self::CONSOLE_DEFAULT);
-    }
 
     protected function parseBooleanOption($optionName)
     {

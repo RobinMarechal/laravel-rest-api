@@ -1,4 +1,5 @@
 <?php
+
 namespace RobinMarechal\RestApi\Controllers;
 
 use App\Http\Controllers\Controller;
@@ -21,10 +22,19 @@ class RestController extends Controller
 
     private $controller;
 
+    public function __construct()
+    {
+        $middlewares = config('rest.middlewares');
+        if($middlewares){
+            $this->middleware(config('rest.middlewares'));
+        }
+    }
 
-    function dispatch($resource, $id = null, $relation = null, $relationId = null): JsonResponse
+
+    function handleRestRequest(Request $request, $resource, $id = null, $relation = null, $relationId = null): JsonResponse
     {
         $restResponse = null;
+        $this->request = $request;
 
         $this->controller = $this->prepareController($resource);
 
@@ -55,15 +65,13 @@ class RestController extends Controller
     public function handleGet($id = null, $relation = null, $relationId = null): RestResponse
     {
         if ($relation) { // -> /api/users/5/posts
-            $prefix = config('rest.controller_relation_function_prefix');
+            $prefix = config('rest.rest_controllers_relation_function_prefix');
             $function = "{$prefix}{$relation}"; // -> get_posts
 
             return $this->controller->$function($id, $relationId);
-        }
-        else if ($id) { // -> /api/users/5
+        } else if ($id) { // -> /api/users/5
             return $this->controller->getById($id);
-        }
-        else { // -> /api/users
+        } else { // -> /api/users
             return $this->controller->all();
         }
     }
@@ -104,10 +112,10 @@ class RestController extends Controller
         $cfg = config('rest');
 
         $controllerPrefix = strtoupper($resource[0]) . camel_case(substr($resource, 1));
-        $controllerPrefix = $cfg['controller_plural'] ? str_plural(str_singular($controllerPrefix)) : str_singular($controllerPrefix);
+        $controllerPrefix = $cfg['rest_controllers_plural'] ? str_plural(str_singular($controllerPrefix)) : str_singular($controllerPrefix);
 
         $className = $controllerPrefix . "Controller";
-        $classPath = $cfg['controller_namespace'] . $className;
+        $classPath = $cfg['rest_controllers_namespace'] . $className;
 
         if (!class_exists($classPath)) {
             throw new ClassNotFoundException("Controller '$classPath' doesn't exist.", new ErrorException());

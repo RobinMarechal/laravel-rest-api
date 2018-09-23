@@ -9,8 +9,24 @@ trait GenerateFileTemplates
     protected function compileControllerTemplate(RestApiTablesCommand $commandObj)
     {
         $template = $this->getControllerTemplate();
-        $template = str_replace("{{controller_namespace}}", $commandObj->controllersNamespace, $template);
+        $template = str_replace("{{rest_controllers_namespace}}", $commandObj->controllersNamespace, $template);
         $template = str_replace("{{controller_name}}", $commandObj->controllerName, $template);
+        $template = str_replace("{{parent_controller_name}}", $commandObj->parentControllerName, $template);
+
+        $import = "";
+        if ($commandObj->parentControllerNamespace != $commandObj->controllersNamespace) {
+            $import = "\n\nuse $commandObj->parentControllerNamespace;";
+        }
+        $template = str_replace("{{use_parent_controller_namespace}}", $import, $template);
+
+        return $template;
+    }
+
+    protected function compileParentControllerTemplate(RestApiInitCommand $commandObj)
+    {
+        $template = $this->getParentControllerTemplate();
+        $template = str_replace("{{rest_controllers_namespace}}", $commandObj->parentControllerNamespace, $template);
+        $template = str_replace("{{parent_controller_name}}", $commandObj->parentControllerName, $template);
 
         return $template;
     }
@@ -160,11 +176,9 @@ class {{model_name}} extends Model
     {
         return
             "<?php
-namespace {{controller_namespace}};
+namespace {{rest_controllers_namespace}};{{use_parent_controller_namespace}}
 
-use App\Http\Controllers\Controller;
-
-class {{controller_name}} extends Controller
+class {{controller_name}} extends {{parent_controller_name}}
 {
 
 }";
@@ -178,4 +192,26 @@ class {{controller_name}} extends Controller
 \t\t{{relation_return}}
 \t}";
     }
+
+    private function getParentControllerTemplate()
+    {
+        return '<?php
+namespace {{rest_controllers_namespace}};
+
+use App\Http\Controllers\Controller;
+use RobinMarechal\RestApi\Rest\HandleRestRequest;
+
+class {{parent_controller_name}} extends Controller
+{
+    use HandleRestRequest;
+
+    protected $request;
+
+    function __construct(\Illuminate\Http\Request $request)
+    {
+        $this->request = $request;
+    }
+}';
+    }
 }
+

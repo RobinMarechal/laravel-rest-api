@@ -270,7 +270,7 @@ trait HandleRestRequest
 
     public function __call($method, $parameters): RestResponse
     {
-        $prefix = config('rest.controller_relation_function_prefix');
+        $prefix = config('rest.rest_controllers_relation_function_prefix');
 
         // 'strlen($method) > strlen($prefix)' is equivalent to 'isset($method[strlen($prefix)])'
         $prefixLength = strlen($prefix);
