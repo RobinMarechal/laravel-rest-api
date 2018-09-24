@@ -234,7 +234,7 @@ class RestApiTablesCommand extends Command
     {
         if ($this->withMigration) {
             $migrationName = "create_{$this->tableName}_table";
-            $this->call("make:migration", ['name' => $migrationName]);
+            $this->call("make:migration", ['name' => $migrationName, 'table' => $this->tableName]);
         }
     }
 
